@@ -132,6 +132,8 @@
   - Kompensator wyprzedzający $|z| < |p|$
   - Kompensator opóźniający $|z| > |p|$ 
 
+---
+
 - **Kompensator wyprzedzający**
 
   - Przyspiesza działanie układu
@@ -174,6 +176,8 @@
     - Ad.4. Zakłądamy że biegun dominujący to nasz pkt próbny i liczymy warunek argumentu. Z tego warunku argumentu otrzymamy kąt jaki musi wychodzić z tego bieguna kompensatora i potem policzymy jego położenie na osi Re.
     - Ad.5. Wzmocnienie z warunku modułu
 
+  ---
+
 - **Kompensator opóźniający**
 
   - Stosuje się by poprawić własności układu w stanie statycznym - zmniejszyć uchyb statyczny
@@ -196,7 +200,151 @@
 
 ---
 
+### 4. Regulatory PID
 
+- Regulator można dobierać optymalnie (kryterium ITAE i znane wzory), albo metodą parametryczną. Metoda parametryczna to także metoda Zieglera - Nicholsa, ale *szanujmy się*
+
+- **Funkcje poszczególnych regulatorów**
+
+  - ![image-20200525172230253](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525172230253.png) 
+
+- Działanie regulatora polega na założeniu, że chcemy przykryć dominujące bieguny układu poprzez położenie na nich zer regulatora. Dlatego tutaj komfortowa jest postać funkcji przejścia jak przy Bode:
+
+  $G(s) = \frac{K}{\Pi (T_{di}s+1)}$ 
+
+- Dominujące bieguny - małe wartości na osi Re - duże wartości stałych czasowych
+
+  $(s+p) = p(\frac{1}{p}s + 1)$
+
+  $T_d = \frac{1}{p}$
+
+- Zatem clou tej metody: $T_{max\ mianownika\ obiektu} = T_{licznika\ regulatora}$
+
+---
+
+#### Regulator PI
+
+- Funkcja przejścia regulatora PI
+
+  $G_{rid} = K_e \frac{T_is+1}{s}$
+
+  $Grrz = K_e \frac{T_is+1}{s(Ts+1)}$
+
+  W obu wersjach $T_i = T_{max\ mian.\ obiektu}$
+
+  ---
+
+#### Regulator PD
+
+- Funkcja przejścia
+
+  $G_{rid} = K_e(T_ds+1)$
+
+  $G_{rrz} = K_e \frac{\frac{\alpha_d+1}{\alpha_d}T_ds+1}{\frac{T_d}{\alpha_d}s+1}$ 
+
+  Dla idealnego mamy:
+
+  $T_d = T_{max\ mian.}$
+
+  Dla rzeczywistego:
+
+  $\frac{\alpha_d+1}{\alpha_d}T_d = T_{max\ mian.}$
+
+  $\alpha_d$ przeważnie przyjmuje wartość 10. $T_d$ wyliczymy sobie z równania
+
+- Idealny jest nierealizowalny fizycznie, bo stopień licznika jest większy niż stopień mianownika. Ale komu by to przeszkadzało
+
+---
+
+#### Regulator PID
+
+- Funkcja przejścia:
+
+  $G_{rid} = K_e \frac{(3.62T_ds +1)(1.38T_ds+1)}{s}$
+
+  $G_{rrz} = K_e \frac{(3.55T_ds+1)(1.55T_ds+1)}{s(0.1T_ds+1)}$
+
+  Dla pierwszego przypadku:
+
+  $3.62T_D = T_{max\ mian.}$
+
+  Dla drugiego:
+
+  $3.55T_d = T_{max\ mian.}$
+
+  Dla obu przypadków:
+
+  $T_i = 5T_d;\ \alpha_d = 10$
+
+  
+
+---
+
+- Jak już określimy funkcję przejścia regulatora, to musimy teraz dobrać jego odpowiednie wzmocnienie. Do tego mamy 4 kryteria
+  - **Kryterium MGP**
+  - **Kryterium stabilności aperiodycznej**
+  - **Kryterium zapasu fazy**
+  - **Kryterium amplitudy rezonansowej**
+
+---
+
+#### Kryterium MGP
+
+- ![image-20200525183747161](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525183747161.png) 
+- Ad.2. Regulator ma mieć wzmocnienie 1. Układ całkowicie ma mieć wzmocnienie tak jak układ bez regulatora - w zależności od zadania
+
+---
+
+#### Kryterium stabilności aperiodycznej
+
+- Generalnie podwójny pierwiastek rzeczywisty gwarantuje najkrótszą możliwą odpowiedź skokową o charakterze aperiodycznym (cokolwiek to znaczy)
+- Twierdzenie o wielokrotnym pierwiastku mówi, że dana liczba jest k-krotnym pierwiastkiem gdy zarówno funkcja w tym miejscu = 0 oraz wszystkie pochodne do k-1 są równe zero. K-ta pochodna ma być różna od zera
+- Zatem jak chcemy, by pojawił się podwójny pierwiastek rzeczywisty, to funkcja musi być równa zero oraz jej pierwsza pochodna = 0 w tym punkcie. 
+- Dobieramy sobie regulator i jego stałą czasową
+- Tworzymy równanie char. układu *zamkniętego* z regulatorem i wzmocnieniem równym K
+- Wyznaczamy sobie pochodną rów. char. z czego uzyskujemy bieguny, gdzie ta pochodna się zeruje
+- Z tymi biegunami wędrujemy do rów. char., podstawiamy te bieguny za s dzięki czemu mamy równanie z jedną niewiadomą K. Obliczamy dla jakiego K to się wyzeruje
+- Profit
+
+---
+
+#### Kryterium zapasu fazy
+
+- ![image-20200525185922949](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525185922949.png)
+  - Ad.2 i 3. Podobnie jak z kompensatorem. Na wykresie zapasu fazy szukam miejsca z dobrym zapasem, przenoszę pionowo na wykres wzmocnienia i sprawdzam jakie tam aktualnie jest wartość amplitudy. Jak amplituda jest <0 (np. -13dB) to wtedy wzmocnienie (wyrażone w logarytmie) musi być dodatnie. Jak amplituda byłaby >0 (np. 13dB) to wtedy wzmocnienie (także w logarytmie) musi być ujemne. Oznacza to, że 0<K<1. Żeby obliczyć K to np. 20logK = 13dB i rozwiązuje to równanie
+  - No i oczywiście rysuje drugiego Bodego bo jakże mógłbym zaufać samemu sobie że dobrze to policzyłem
+
+---
+
+#### OPTYMALNA synteza
+
+- ![image-20200525190511533](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525190511533.png)
+
+- W oparciu o ITAE tutaj mamy optymalnie dobrane współczynniki w równaniu charakterystycznym **Układu zamkniętego** 
+
+- Współczynniki te dobrane są do regulatora **PID** 
+
+- ISTOTNY JEST **PREFILTR**
+
+- ![image-20200525190650565](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525190650565.png)
+
+- **Algorytm postępowania**
+
+- ![image-20200525190806475](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525190806475.png)
+
+  - Ad.1. Na podstawie [tego](#Przydatne wzory) ustalamy sobie wstępną $\omega_n$. $\zeta$  wynika z przeregulowania
+
+  - Ad.2. ![image-20200525191539261](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525191539261.png)
+
+    Następnie obliczamy równanie układu zamkniętego z tymi parametrami i przyrównujemy do optymalnego równania ITAE
+
+  - Jeżeli wyjdzie, że $\omega_n$ musi być konkretnej wartości, to nic. Po prostu przyjmujemy tą konkretną omegę i koniec
+
+  - Ad.3. ![image-20200525191732816](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525191732816.png)
+
+    Skąd to 127.5 w liczniku? Ponieważ $s\to0$ gdy liczymy błąd statyczny, to wtedy wyzerują nam się wszystkie pozostałe s. Gdybyśmy zostawili w liczniku 1, to 127.5 w mianowniku spowodowałoby zmianę wzmocnienia całego układu co jest niepożądane. 
+
+---
 
 ### Przydatne wzory
 
@@ -204,7 +352,23 @@
 
   ![image-20200524195153639](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200524195153639.png) 
 
-- 
+- Współczynnik tłumienia a wartość przeregulowania i zapas fazy
+
+  ![image-20200525183635155](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525183635155.png) 
+
+- Przeregulowanie i wsp. tłumienia
+
+  ![image-20200525193636898](C:\Users\filip\AppData\Roaming\Typora\typora-user-images\image-20200525193636898.png)
+
+- Stałe uchybu
+
+  $K_p = $$\lim_{s\to0}G(s)$ 
+
+  $K_v = \lim_{s\to0}sG(s)$
+
+  $K_a = \lim_{s\to0}s^2G(s)$
+
+  
 
 
 
@@ -218,3 +382,6 @@
 
 
 
+
+
+[C_U]: 
